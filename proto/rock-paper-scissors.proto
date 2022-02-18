@@ -1,0 +1,73 @@
+// protoのバージョンです。
+syntax = "proto3";
+
+// メッセージ型などの名前の衝突を避けるためにパッケージ名を指定します。
+package game;
+
+// コードが自動生成されるディレクトリを指定しています。
+option go_package = "pb/";
+
+// 他のパッケージのメッセージ型をインポートできます。
+// ここではWell Known Typesと呼ばれるGoogle提供のメッセージ型を使用します。
+import "google/protobuf/timestamp.proto";
+
+// APIにおけるサービスを定義
+service RockPaperScissorsService {
+  // ジャンケンを行います。
+  rpc PlayGame (PlayRequest) returns (PlayResponse) {}
+  // 対戦結果の履歴を確認します。
+  rpc ReportMatchResults (ReportRequest) returns (ReportResponse) {}
+}
+
+// enumでグー、チョキ、パーを定義。
+enum HandShapes {
+  HAND_SHAPES_UNKNOWN  = 0;
+  ROCK  = 1;
+  PAPER  = 2;
+  SCISSORS  = 3;
+}
+
+// enumで勝敗とあいこを定義
+enum Result {
+  RESULT_UNKNOWN  = 0;
+  WIN  = 1;
+  LOSE  = 2;
+  DRAW  = 3;
+}
+
+// 型にはスカラー型とメッセージ型の２つがあります。
+// スカラー型は数値、文字列、真偽値などがあり、メッセージ型は複数のフィールドを持つことができます。
+
+// 対戦結果のメッセージ型です。
+message MatchResult {
+  HandShapes yourHandShapes = 1;
+  HandShapes opponentHandShapes = 2;
+  Result result = 3;
+  google.protobuf.Timestamp create_time = 4;
+}
+
+// 今までの試合数、勝敗と対戦結果の履歴を持つメッセージ型です。
+message Report {
+  int32 numberOfGames = 1;
+  int32 numberOfWins = 2;
+  // `repeated`を付けることで配列を表現できます。
+  repeated MatchResult matchResults = 3;
+}
+
+// PlayGameメソッドのリクエスト用のメッセージ型
+message PlayRequest {
+  HandShapes handShapes = 1;
+}
+
+// PlayGameメソッドのレスポンス用のメッセージ型
+message PlayResponse {
+  MatchResult matchResult = 1;
+}
+
+// ReportMatchResultsメソッドのリクエスト用のメッセージ型
+message ReportRequest {}
+
+// ReportMatchResultsメソッドのレスポンス用のメッセージ型
+message ReportResponse {
+    Report report = 1;
+}
